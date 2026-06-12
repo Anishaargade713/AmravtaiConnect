@@ -20,8 +20,17 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @Override
     public void run(String... args) throws Exception {
+        try {
+            jdbcTemplate.execute("ALTER TABLE refresh_tokens MODIFY COLUMN id BIGINT AUTO_INCREMENT");
+            System.out.println("Successfully altered refresh_tokens id column to AUTO_INCREMENT.");
+        } catch (Exception e) {
+            System.out.println("Could not alter refresh_tokens table: " + e.getMessage());
+        }
         if (userRepository.findByPhone("9876543210").isEmpty()) {
             System.out.println("No admin found with phone 9876543210. Seeding initial SYSTEM_ADMINISTRATOR...");
 
@@ -44,7 +53,25 @@ public class DataSeeder implements CommandLineRunner {
             System.out.println("Email: admin@amravati.gov.in");
             System.out.println("Password: Admin@123");
         } else {
-            System.out.println("Database already populated. Skipping seeding.");
+            System.out.println("Database already populated. Skipping admin seeding.");
+        }
+
+        if (userRepository.findByPhone("9307498398").isEmpty()) {
+            System.out.println("Seeding user 9307498398...");
+            User customUser = new User();
+            customUser.setUserID("anu_user");
+            customUser.setName("Anu User");
+            customUser.setEmail("anu@amravati.gov.in");
+            customUser.setPassword(passwordEncoder.encode("Anu@2004"));
+            customUser.setRole(Role.SYSTEM_ADMINISTRATOR); // Set to SYSTEM_ADMINISTRATOR so it has full privileges
+            customUser.setStatus(UserStatus.ACTIVE);
+            customUser.setDistrict("Amravati");
+            customUser.setTaluka("Amravati");
+            customUser.setVillage("Amravati");
+            customUser.setPhone("9307498398");
+            customUser.setCreatedAt(LocalDateTime.now());
+            userRepository.save(customUser);
+            System.out.println("User 9307498398 seeded successfully!");
         }
     }
 }

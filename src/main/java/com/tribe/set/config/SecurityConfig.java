@@ -3,6 +3,7 @@ package com.tribe.set.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -28,6 +29,9 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Value("${amravati.app.frontendUrl}")
+    private String frontendUrl;
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -56,7 +60,11 @@ public class SecurityConfig {
         // Explicitly set allowed origins
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://effervescent-conkies-739628.netlify.app", 
-                "http://localhost:5173"));
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:5175",
+                "http://localhost:5176",
+                frontendUrl));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));

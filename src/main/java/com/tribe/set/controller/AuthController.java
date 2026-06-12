@@ -6,7 +6,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import com.tribe.set.dto.JwtResponse;
 import com.tribe.set.dto.UserRequest;
 import com.tribe.set.dto.RegisterRequest;
@@ -16,21 +15,19 @@ import com.tribe.set.security.JwtUtils;
 import com.tribe.set.security.UserDetailsImpl;
 import com.tribe.set.entity.RefreshToken;
 import com.tribe.set.service.RefreshTokenService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth") 
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    @Autowired
+   @Autowired
     private AuthService authService;
 
     @Autowired
@@ -42,17 +39,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody UserRequest request, HttpServletRequest httpRequest) {
         Authentication authentication = authService.authenticateUser(request, httpRequest);
-        
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         ResponseCookie jwtCookie = jwtUtils.generateAccessCookie(userDetails);
-        
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
         ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshCookie(refreshToken.getToken());
 
         JwtResponse responseBody = new JwtResponse(
-                jwtCookie.getValue(), // Access token is now returned in body
-                userDetails.getUserID(),
+                jwtCookie.getValue(), 
+                userDetails.getId(),
                 userDetails.getName(),
                 userDetails.getEmail(),
                 userDetails.getPhone(),
@@ -61,8 +56,6 @@ public class AuthController {
                 userDetails.getTaluka(),
                 userDetails.getVillage(),
                 "Login successful");
-
-        logger.info("Successful login for Email: {} from IP: {}", userDetails.getEmail(), httpRequest.getRemoteAddr());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
@@ -126,10 +119,9 @@ public class AuthController {
 //    public String register(@Valid @RequestBody RegisterRequest request) {
 //        return authService.register(request);
 //    }
-    @PostMapping("/register")
+   @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        String response = authService.register(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/change-password")
@@ -153,15 +145,12 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/me")
+   @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired or invalid");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
         }
-        
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        
-        // Return profile data that frontend needs for UI state
         JwtResponse response = new JwtResponse(
                 null, 
                 userPrincipal.getId(),
@@ -173,7 +162,6 @@ public class AuthController {
                 userPrincipal.getTaluka(),
                 userPrincipal.getVillage(),
                 "Session active");
-                
         return ResponseEntity.ok(response);
     }
 }
