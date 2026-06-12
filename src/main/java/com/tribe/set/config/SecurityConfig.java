@@ -65,6 +65,7 @@ public class SecurityConfig {
                 "http://localhost:5175",
                 "http://127.0.0.1:5173",
                 "http://127.0.0.1:5174",
+                "https://effervescent-conkies-739628.netlify.app", // Crucial Render/Netlify connection
                 frontendUrl));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Allow all headers during development to prevent preflight blocks
