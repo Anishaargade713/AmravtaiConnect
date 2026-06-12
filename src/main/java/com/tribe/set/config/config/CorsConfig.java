@@ -14,9 +14,12 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // we will restrict later
+                        // 1. MUST be the exact Netlify URL (NO trailing slash!)
+                        .allowedOrigins("https://effervescent-conkies-739628.netlify.app") 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        // 2. This line is absolutely mandatory for login cookies to work!
+                        .allowCredentials(true); 
             }
         };
     }
